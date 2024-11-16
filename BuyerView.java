@@ -7,9 +7,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import java.util.ArrayList;
+import javafx.geometry.Pos;
 
 public class BuyerView extends Application {
     private User currentUser;
@@ -44,17 +43,39 @@ public class BuyerView extends Application {
     private HBox createTopNav() {
         HBox topNav = new HBox(10);
         topNav.setPadding(new Insets(10));
-        topNav.setStyle("-fx-background-color: #8C1D40;"); // Color Maroon
+        topNav.setStyle("-fx-background-color: #FFD700;"); // Color Gold
+        topNav.setAlignment(Pos.CENTER);
+        
+        // The logo
+        Image asuLogo = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true");
+        ImageView logoView = new ImageView(asuLogo);
+        logoView.setFitHeight(40);  // Adjust size as needed
+        logoView.setFitWidth(40);   // Adjust size as needed
+        logoView.setPreserveRatio(true);
+        
+        HBox logoContainer = new HBox(logoView);
+        HBox.setHgrow(logoContainer, Priority.ALWAYS);
+        logoContainer.setAlignment(Pos.CENTER_LEFT);
 
         // Profile section
         Button profileBtn = new Button(currentUser.getName());
         profileBtn.setOnAction(e -> showProfile());
 
         // Navigation buttons
+        HBox centerButtons = new HBox(20); // Increased spacing between buttons
+        centerButtons.setAlignment(Pos.CENTER);
+        
         Button browseBtn = new Button("Browse Books");
         Button cartBtn = new Button("View Cart");
         Label cartCount = new Label("(" + userCart.getItemCount() + ")");
-        cartCount.setStyle("-fx-text-fill: white;");
+        cartCount.setStyle("-fx-text-fill: black;"); // Made text black
+        
+        styleButton(browseBtn);
+        styleButton(cartBtn);
+        
+        centerButtons.getChildren().addAll(browseBtn, cartBtn, cartCount);
+        HBox.setHgrow(centerButtons, Priority.ALWAYS);
+        
 
         // Logout button
         Button logoutBtn = new Button("Logout");
@@ -72,6 +93,37 @@ public class BuyerView extends Application {
 
         topNav.getChildren().addAll(profileBtn, browseBtn, cartBtn, cartCount, spacer, logoutBtn);
         return topNav;
+    }
+    
+    private void styleButton(Button button) {
+        button.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-text-fill: black;" +            // Black text
+            "-fx-font-size: 14px;" +            // Larger font
+            "-fx-font-weight: bold;" +          // Bold text
+            "-fx-cursor: hand;"                 // Hand cursor on hover
+        );
+        
+        // Add hover effect
+        button.setOnMouseEntered(e -> 
+            button.setStyle(
+                "-fx-background-color: #E8B423;" + // Slightly darker gold on hover
+                "-fx-text-fill: black;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        button.setOnMouseExited(e -> 
+            button.setStyle(
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: black;" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;"
+            )
+        );
     }
 
     private TabPane createContentTabs() {
