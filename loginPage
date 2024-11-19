@@ -55,8 +55,8 @@ public class loginPage extends Application  {
 			 
 	       
 	        ImageView imageView = new ImageView(image); 
-	        imageView.setFitWidth(300);
-	        imageView.setFitHeight(200);
+	        imageView.setFitWidth(500);
+	        imageView.setFitHeight(400);
 	        imageView.setPreserveRatio(true);
 	 
 	        
