@@ -36,8 +36,6 @@ import javafx.scene.image.Image;
 
 
 public class loginPage extends Application  {
-	
-	private static final String FILE_PATH = "database.txt";
 
 	@Override
 	public void start(Stage primaryStage) {
