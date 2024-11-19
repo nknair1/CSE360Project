@@ -51,7 +51,7 @@ public class loginPage extends Application  {
 			titleBox.setStyle("-fx-background-color: #ffd700;");
 		;
 			
-			Image image = new Image("file:C:\\Users\\paola\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-25 174041.png"); // Use a valid path to your image 
+	 Image image = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true"); 
 			 
 	       
 	        ImageView imageView = new ImageView(image); 
