@@ -2,6 +2,7 @@ package application;
 
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -24,6 +26,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+
 import java.io.InputStream;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -36,6 +40,8 @@ import javafx.scene.image.Image;
 
 
 public class loginPage extends Application  {
+	
+	
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -44,27 +50,22 @@ public class loginPage extends Application  {
 			BorderPane root = new BorderPane();
 			
 			
-		
+	
 			HBox titleBox = new HBox();
-
-			root.setTop(titleBox);
-			titleBox.setStyle("-fx-background-color: #ffd700;");
-		;
 			
-	 Image image = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true"); 
-			 
-	       
-	        ImageView imageView = new ImageView(image); 
-	        imageView.setFitWidth(500);
-	        imageView.setFitHeight(400);
-	        imageView.setPreserveRatio(true);
-	 
-	        
+			root.setTop(titleBox);
+
+			
+			
+			titleBox.setStyle("-fx-background-color: #ffd700;");
+	        String imageUrl = "https://i.imgur.com/ltNtYmm_d.jpeg?maxwidth=520&shape=thumb&fidelity=high";
+	        Image image = new Image(imageUrl);
+	        ImageView imageView = new ImageView(image);
+	        imageView.setFitWidth(300);
+	        imageView.setFitHeight(100);
 	        titleBox.getChildren().add(imageView);
-	        
-	        
-			titleBox.setAlignment(Pos.TOP_CENTER);
-			titleBox.setMinHeight(120);
+	        titleBox.setAlignment(Pos.TOP_CENTER);
+	        titleBox.setMinHeight(120);
 			
 
 			Label email = new Label("PLEASE ENTER YOUR ASU EMAIL");
@@ -114,6 +115,16 @@ public class loginPage extends Application  {
 					titleBox.setStyle("-fx-background-color: #ffd700;");
 					titleBox.setMinHeight(120);
 //					titleBox.s/etAlignment(Pos.TOP_CENTER)
+					
+					HBox backBox = new HBox();
+			        Button back = new Button("←");
+			        back.setStyle("-fx-background-color: transparent; -fx-text-fill: #8C1D40;");
+			        back.setOnAction(event -> start(primaryStage));
+			        backBox.getChildren().add(back);
+			        backBox.setAlignment(Pos.TOP_LEFT);
+			        titleBox.setStyle("-fx-background-color: #ffd700;");
+			        titleBox.setMinHeight(120);
+			        titleBox.getChildren().add(backBox); 
 					
 					
 					Label blank = new Label ("");
@@ -173,25 +184,94 @@ public class loginPage extends Application  {
 					VBox titleBox = new VBox();
 					root1.setTop(titleBox);
 					titleBox.setStyle("-fx-background-color: #ffd700;");
-					titleBox.setMinHeight(120);
+					titleBox.setMinHeight(90);
 
 					
 					
 					Label blank = new Label ("");
-					Label forgot = new Label("Create New Account");
-					forgot.setFont(new Font("DM Sans",20));
-					forgot.setStyle("-fx-text-fill: #8C1D40;");
-					forgot.setAlignment(Pos.BOTTOM_CENTER);
+					
+					Label createNew = new Label("Create New Account");
+					createNew.setFont(new Font("DM Sans",20));
+					createNew.setStyle("-fx-text-fill: #8C1D40;");
+					createNew.setAlignment(Pos.TOP_CENTER);
 					Label newPassword = new Label ("Already Registered? Login");
 					newPassword.setAlignment(Pos.BOTTOM_CENTER);
 					newPassword.setFont(new Font("DM Sans",10));
 					newPassword.setStyle("-fx-text-fill: #8C1D40;");
 					
+					VBox headers = new VBox();
+					headers.getChildren() .addAll(createNew,newPassword, blank);
+					
+					
+					HBox backBox = new HBox();
+			        Button back = new Button("←");
+			        back.setStyle("-fx-background-color: transparent; -fx-text-fill: #8C1D40;");
+			        back.setOnAction(event -> start(primaryStage));
+			        backBox.getChildren().add(back);
+			        backBox.setAlignment(Pos.TOP_LEFT);
+			        titleBox.setStyle("-fx-background-color: #ffd700;");
+			        titleBox.setMinHeight(90);
+			        titleBox.getChildren().add(backBox); 
+			        
 //					HBox titleBox = new HBox();
-					titleBox.getChildren().addAll(blank,forgot,newPassword);
+					titleBox.getChildren().addAll(createNew,newPassword, blank);
 					titleBox.setSpacing(10);
 					root1.setTop(titleBox);
-					titleBox.setAlignment(Pos.TOP_CENTER);
+					titleBox.setAlignment(Pos.BASELINE_CENTER);
+					
+					Label what = new Label("YOU ARE A/AN:");
+					what.setStyle("-fx-text-fill: #8F8E8E;");
+					what.setFont(new Font("DM Sans", 13));
+					RadioButton rb1 = new RadioButton("Admin");
+					RadioButton rb2 = new RadioButton("Buyer");
+					RadioButton rb3 = new RadioButton("Seller");
+					rb1.setStyle("-fx-text-fill: #8F8E8E;");
+					rb1.setFont(new Font("DM Sans", 13));
+					rb2.setStyle("-fx-text-fill: #8F8E8E;");
+					rb2.setFont(new Font("DM Sans", 13));
+					rb3.setStyle("-fx-text-fill: #8F8E8E;");
+					rb3.setFont(new Font("DM Sans", 13));
+					ToggleGroup rbGroup = new ToggleGroup();
+					rb1.setToggleGroup(rbGroup);
+					rb2.setToggleGroup(rbGroup);
+					rb3.setToggleGroup(rbGroup);
+					
+					HBox rbuttons = new HBox();
+					rbuttons.getChildren() .addAll(what,rb1,rb2,rb3);
+					rbuttons.setAlignment(Pos.BASELINE_CENTER);
+					rbuttons.setSpacing(20);
+					
+					
+					Label first = new Label("FIRST NAME");
+					first.setStyle("-fx-text-fill: #8F8E8E;");
+					first.setFont(new Font("DM Sans", 13));
+					
+					Label last = new Label("LAST NAME");
+					last.setStyle("-fx-text-fill: #8F8E8E;");
+					last.setFont(new Font("DM Sans", 13));
+					
+					
+					
+					TextField firstTextField = new TextField();
+					firstTextField.setStyle("-fx-background-color: #D3D3D3;");
+					firstTextField.setPrefWidth(300);
+					firstTextField.setMaxWidth(300);
+					
+					TextField lastTextField = new TextField();
+					lastTextField.setStyle("-fx-background-color: #D3D3D3;");
+					lastTextField.setPrefWidth(300);
+					lastTextField.setMaxWidth(300);
+					
+					HBox initial = new HBox();
+					initial.setAlignment(Pos.TOP_CENTER);
+					initial.getChildren().addAll(first,firstTextField, last, lastTextField);
+					initial.setSpacing(10);
+					
+					TextField emailTextField2 = new TextField();
+					emailTextField2.setStyle("-fx-background-color: #D3D3D3;");
+					emailTextField2.setPrefWidth(300);
+					emailTextField2.setMaxWidth(300);
+					
 					
 					Label email = new Label("PLEASE ENTER YOUR ASU EMAIL");
 					email.setStyle("-fx-text-fill: #8F8E8E;");
@@ -205,11 +285,6 @@ public class loginPage extends Application  {
 					emailTextField.setStyle("-fx-background-color: #D3D3D3;");
 					emailTextField.setPrefWidth(300);
 					emailTextField.setMaxWidth(300);
-					
-					TextField emailTextField2 = new TextField();
-					emailTextField2.setStyle("-fx-background-color: #D3D3D3;");
-					emailTextField2.setPrefWidth(300);
-					emailTextField2.setMaxWidth(300);
 					
 					Label password = new Label("PLEASE ENTER YOUR PASSWORD");
 					password.setStyle("-fx-text-fill: #8F8E8E;");
@@ -235,9 +310,8 @@ public class loginPage extends Application  {
 					signUp.setStyle("-fx-background-color: #ffd700; -fx-text-fill: #8C1D40;");
 					
 					VBox forgotten = new VBox();
-					forgotten.getChildren() .addAll(email, emailTextField, emailRepeat, 
-							emailTextField2, password, passwordTextField, passwordRepeat,
-							passwordTextField2, signUp);
+					forgotten.getChildren() .addAll(rbuttons,initial,email, emailTextField, emailRepeat, emailTextField2,
+							password, passwordTextField, passwordRepeat,passwordTextField2, signUp);
 					forgotten.setSpacing(10);
 					forgotten.setAlignment(Pos.CENTER);
 					root1.setCenter(forgotten);
