@@ -48,26 +48,18 @@ public class loginPage extends Application  {
 		try {
 			
 			BorderPane root = new BorderPane();
-			
-			
-	
 			HBox titleBox = new HBox();
-			
 			root.setTop(titleBox);
-
-			
-			
 			titleBox.setStyle("-fx-background-color: #ffd700;");
-	        String imageUrl = "https://i.imgur.com/ltNtYmm_d.jpeg?maxwidth=520&shape=thumb&fidelity=high";
-	        Image image = new Image(imageUrl);
+			
+			Image image = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true");
 	        ImageView imageView = new ImageView(image);
 	        imageView.setFitWidth(300);
-	        imageView.setFitHeight(100);
+	        imageView.setFitHeight(200);
 	        titleBox.getChildren().add(imageView);
-	        titleBox.setAlignment(Pos.TOP_CENTER);
-	        titleBox.setMinHeight(120);
+	        titleBox.setAlignment(Pos.CENTER);
+	        titleBox.setMaxHeight(100);
 			
-
 			Label email = new Label("PLEASE ENTER YOUR ASU EMAIL");
 			email.setStyle("-fx-text-fill: #8F8E8E;");
 			email.setFont(new Font("DM Sans", 13));
