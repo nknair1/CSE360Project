@@ -17,9 +17,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class AdminDash extends Application {
-
+    private Stage primaryStage;
     @Override
     public void start(Stage stage) throws FileNotFoundException {
+        this.primaryStage = stage;
         HBox topBar = new HBox();
         topBar.setPadding(new Insets(10));
         topBar.setSpacing(15);
@@ -112,7 +113,7 @@ public class AdminDash extends Application {
         HBox.setHgrow(leftRegion, Priority.ALWAYS);
         HBox.setHgrow(centerRegion, Priority.ALWAYS);
         HBox.setHgrow(rightRegion, Priority.ALWAYS);
-        //Making buttons for the 3 scenes that will be attached.
+        //Making buttons for the 3 scenes that will be attached. - Added funtionality to point to scenes.
         Button manageTransactionsButton = new Button("Manage Transactions");
         Button viewStatsButton = new Button("View Statistics");
         Button manageAccountsButton = new Button("Manage Accounts");
@@ -121,6 +122,9 @@ public class AdminDash extends Application {
         viewStatsButton.setStyle(buttonStyle);
         manageAccountsButton.setStyle(buttonStyle);
         bottomButtons.getChildren().addAll(manageTransactionsButton, leftRegion, viewStatsButton, rightRegion, manageAccountsButton);
+        manageAccountsButton.setOnAction(e -> openManageAccountsPage());
+        viewStatsButton.setOnAction(e -> openStatisticsPage());
+        manageTransactionsButton.setOnAction(e -> openManageTransactionsPage());
         BorderPane root = new BorderPane();
         root.setTop(topBar);
         root.setCenter(mainContent);
@@ -130,6 +134,29 @@ public class AdminDash extends Application {
         stage.setTitle("Admin Dashboard");
         stage.setScene(scene);
         stage.show();
+    }
+    //Exception catchers just in case. For debugging purposes. And in general. But these will make a new scene pointing to
+    //...existing files.
+    private void openManageAccountsPage() {
+        try {
+            new ManageAccountsPage().start(new Stage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void openStatisticsPage() {
+        try {
+            new StatisticsPage().start(new Stage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void openManageTransactionsPage() {
+        try {
+            new ManageTransactionsPage().start(new Stage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
