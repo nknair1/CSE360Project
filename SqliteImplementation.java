@@ -45,7 +45,7 @@ public class SqliteImplementation {
             pstmt.setString(2, password);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("user_type.");
+                return rs.getString("user_type");
             }
         } catch (SQLException e) {
             System.out.println("Login validation failed.");// + e.getMessage());
