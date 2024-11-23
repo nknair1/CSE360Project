@@ -1,6 +1,3 @@
-Certainly! Here's your original JavaFX code, formatted correctly with the spaces removed as requested:
-
-```java
 package application;
 
 import javafx.application.Application;
