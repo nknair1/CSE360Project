@@ -1,6 +1,7 @@
 package application;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SqliteImplementation {
 
@@ -54,4 +55,43 @@ public class SqliteImplementation {
         }
         return null;
     }
+    
+    public static boolean insertBook(Book book) {
+        String sql = "INSERT INTO books (author, title, price, photo) VALUES (?, ?, ?, ?)";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, book.getAuthor());
+            pstmt.setString(2, book.getTitle());
+            pstmt.setDouble(3, book.getPrice());
+            pstmt.setString(4, book.getPhoto());
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Insert book failed. " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static ArrayList<Book> getAllBooks() {
+        String sql = "SELECT * FROM books";
+        ArrayList<Book> books = new ArrayList<>();
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String author = rs.getString("author");
+                String title = rs.getString("title");
+                double price = rs.getDouble("price");
+                String photo = rs.getString("photo");
+
+                Book book = new Book(id, author, title, price, photo);
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            System.out.println("Retrieve books failed. " + e.getMessage());
+        }
+        return books;
+    }
+
+    
+    
+    
 }
