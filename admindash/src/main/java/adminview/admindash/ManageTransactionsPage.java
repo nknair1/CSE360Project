@@ -37,18 +37,18 @@ public class ManageTransactionsPage extends Application {
         SqliteImplementation.printAllTransactions();
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
-        HBox header = createHeader();
+        HBox header = createHeader(primaryStage);
         selectionToolbar = createSelectionToolbar();
         selectionToolbar.setVisible(false);
         transactionTable = createTransactionTable();
         loadTransactions();
         root.getChildren().addAll(header, selectionToolbar, transactionTable);
-        Scene scene = new Scene(root, 1200, 700);
+        Scene scene = new Scene(root, 1200, 800);
         primaryStage.setTitle("Manage Transactions");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    private HBox createHeader() {
+    private HBox createHeader(Stage stage) {
         HBox header = new HBox(20);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(10));
@@ -57,6 +57,16 @@ public class ManageTransactionsPage extends Application {
         Label adminLabel = new Label("Mr. Admin");
         adminLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 10 5 10;");
         adminLabel.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
+        adminLabel.setOnMouseClicked(e -> {
+            try {
+                boolean wasFullScreen = stage.isFullScreen();
+                new AdminDash().start(stage);
+                stage.setFullScreen(wasFullScreen);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         ImageView logo = new ImageView(new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true"));
         logo.setFitHeight(40);
         logo.setFitWidth(40);

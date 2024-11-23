@@ -139,21 +139,32 @@ public class AdminDash extends Application {
     //...existing files.
     private void openManageAccountsPage() {
         try {
-            new ManageAccountsPage().start(new Stage());
+            boolean wasFullScreen = primaryStage.isFullScreen();
+            ManageAccountsPage accountsPage = new ManageAccountsPage();
+            accountsPage.start(primaryStage);
+            primaryStage.setFullScreen(wasFullScreen);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void openStatisticsPage() {
         try {
-            new StatisticsPage().start(new Stage());
+            boolean wasFullScreen = primaryStage.isFullScreen();
+            StatisticsPage statsPage = new StatisticsPage();
+            statsPage.start(primaryStage);
+            primaryStage.setFullScreen(wasFullScreen);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void openManageTransactionsPage() {
         try {
-            new ManageTransactionsPage().start(new Stage());
+            boolean wasFullScreen = primaryStage.isFullScreen();
+            ManageTransactionsPage transactionsPage = new ManageTransactionsPage();
+            transactionsPage.start(primaryStage);
+            primaryStage.setFullScreen(wasFullScreen);
         } catch (Exception e) {
             e.printStackTrace();
         }

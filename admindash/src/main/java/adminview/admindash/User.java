@@ -16,7 +16,7 @@ public class User {
         this.name = new SimpleStringProperty(name);
         this.email = new SimpleStringProperty(email);
         this.joinDate = new SimpleStringProperty(joinDate);
-        this.select = new SimpleObjectProperty<>(new CheckBox()); // Initialize checkbox
+        this.select = new SimpleObjectProperty<>(new CheckBox());
     }
 
     public String getName() {

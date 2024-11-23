@@ -55,6 +55,15 @@ public class ManageAccountsPage extends Application {
         Label adminLabel = new Label("Mr. Admin");
         adminLabel.setFont(Font.font("System", 14));
         adminLabel.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
+        adminLabel.setOnMouseClicked(e -> {
+            try {
+                boolean wasFullScreen = stage.isFullScreen();
+                new AdminDash().start(stage);
+                stage.setFullScreen(wasFullScreen);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
         // ASU Bookstore Image Logo
         Image image = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true");
@@ -120,7 +129,7 @@ public class ManageAccountsPage extends Application {
         root.setCenter(new VBox(10, toggleBox, new ScrollPane(tableView)));
         root.setStyle("-fx-background-color: #FAEBD7; -fx-padding: 20px;");
 
-        Scene scene = new Scene(root, 1024, 768);
+        Scene scene = new Scene(root, 1200, 800);
         stage.setScene(scene);
 
         stage.setTitle("Manage Accounts");
