@@ -167,22 +167,82 @@ public class SqliteImplementation {
             return false;
         }
     }
-    
+
     public static ResultSet getUserTransactions(String userEmail) {
-        String sql = """
-            SELECT * FROM book_transactions 
-            WHERE buyer_email = ? OR seller_email = ? 
-            ORDER BY transaction_date DESC""";
+        String sql;
+        Connection conn = connect();
+        PreparedStatement pstmt;
 
         try {
-            Connection conn = connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userEmail);
-            pstmt.setString(2, userEmail);
-            return pstmt.executeQuery();
+            if (userEmail == null || userEmail.isEmpty()) {
+                sql = "SELECT * FROM book_transactions ORDER BY transaction_date DESC";
+                pstmt = conn.prepareStatement(sql);
+            } else {
+                sql = "SELECT * FROM book_transactions WHERE buyer_email = ? OR seller_email = ? ORDER BY transaction_date DESC";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, userEmail);
+                pstmt.setString(2, userEmail);
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+            return rs;
         } catch (SQLException e) {
             System.out.println("Error retrieving transactions: " + e.getMessage());
             return null;
+        }
+    }
+    public static void printAllTransactions() {
+        String sql = "SELECT * FROM book_transactions";
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            System.out.println("\n--- All Transactions in Database ---");
+            while (rs.next()) {
+                System.out.println(String.format("ID: %d, Book: %s, Buyer: %s, Seller: %s, Price: %.2f, Date: %s",
+                        rs.getInt("transaction_id"),
+                        rs.getString("book_title"),
+                        rs.getString("buyer_email"),
+                        rs.getString("seller_email"),
+                        rs.getDouble("price"),
+                        rs.getString("transaction_date")));
+            }
+            System.out.println("--- End of Transactions ---\n");
+        } catch (SQLException e) {
+            System.out.println("Error printing transactions: " + e.getMessage());
+        }
+    }
+    public static void deleteUser(String email) throws SQLException {
+        String sql = "DELETE FROM users WHERE email = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Deleting user failed, no rows affected.");
+            }
+        }
+    }
+
+    public static void updateUser(String originalEmail, String newName, String newEmail) throws SQLException {
+        String[] nameParts = newName.trim().split("\\s+", 2);
+        String firstName = nameParts[0];
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
+
+        String sql = "UPDATE users SET name = ?, last_name = ?, email = ? WHERE email = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, firstName);
+            pstmt.setString(2, lastName);
+            pstmt.setString(3, newEmail);
+            pstmt.setString(4, originalEmail);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating user failed, no rows affected.");
+            }
         }
     }
 }

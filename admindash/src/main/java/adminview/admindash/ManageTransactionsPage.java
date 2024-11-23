@@ -12,6 +12,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.scene.control.ProgressIndicator;
+import javafx.stage.Popup;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +34,7 @@ public class ManageTransactionsPage extends Application {
     @Override
     public void start(Stage primaryStage) {
         SqliteImplementation.createBookTransactionTable();
+        SqliteImplementation.printAllTransactions();
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
         HBox header = createHeader();
@@ -46,7 +52,7 @@ public class ManageTransactionsPage extends Application {
         HBox header = new HBox(20);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(10));
-        header.setStyle("-fx-background-color: #FFD700;"); // Gold background
+        header.setStyle("-fx-background-color: #FFD700;");
 
         Label adminLabel = new Label("Mr. Admin");
         adminLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 10 5 10;");
@@ -59,13 +65,20 @@ public class ManageTransactionsPage extends Application {
         Label title = new Label("Manage Transactions");
         title.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
 
+        Button refreshBtn = new Button("↻ Refresh");
+        refreshBtn.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
+        refreshBtn.setOnAction(e -> refreshTransactions());
+
+        Tooltip refreshTooltip = new Tooltip("Refresh transaction list");
+        refreshBtn.setTooltip(refreshTooltip);
+
         Button logoutBtn = new Button("Logout");
         logoutBtn.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        header.getChildren().addAll(adminLabel, logo, title, spacer, logoutBtn);
+        header.getChildren().addAll(adminLabel, logo, title, spacer, refreshBtn, logoutBtn);
         return header;
     }
 
@@ -155,6 +168,7 @@ public class ManageTransactionsPage extends Application {
         transactions = FXCollections.observableArrayList();
         try (ResultSet rs = SqliteImplementation.getUserTransactions(null)) {
             if (rs != null) {
+                System.out.println("ResultSet received, starting to process rows");
                 while (rs.next()) {
                     String bookTitle = rs.getString("book_title");
                     String buyerEmail = rs.getString("buyer_email");
@@ -162,19 +176,25 @@ public class ManageTransactionsPage extends Application {
                     Double price = rs.getDouble("price");
                     String transactionDate = rs.getString("transaction_date");
 
-                    if (bookTitle != null && buyerEmail != null && sellerEmail != null &&
-                            price != null && transactionDate != null) {
-                        transactions.add(new Transaction(bookTitle, buyerEmail, sellerEmail, price, transactionDate));
-                    } else {
-                        System.err.println("Skipping transaction due to null values in database.");
+                    if (transactionDate == null || transactionDate.trim().isEmpty()) {
+                        transactionDate = "Not specified";
                     }
+
+                    System.out.println("Processing transaction: " + bookTitle + " - " + buyerEmail);
+
+                    transactions.add(new Transaction(bookTitle, buyerEmail, sellerEmail, price, transactionDate));
+                    System.out.println("Transaction added to list");
                 }
+                System.out.println("Total transactions loaded: " + transactions.size());
+            } else {
+                System.out.println("ResultSet is null - no transactions found");
             }
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load transactions: " + e.getMessage());
         }
         transactionTable.setItems(transactions);
+        System.out.println("Table items set. Item count: " + transactionTable.getItems().size());
     }
 
     private void updateSelectionToolbar() {
@@ -246,4 +266,72 @@ public class ManageTransactionsPage extends Application {
             this.selected = selected;
         }
     }
+
+    private void refreshTransactions() {
+        clearSelection();
+
+        transactionTable.setPlaceholder(new ProgressIndicator());
+
+        Thread refreshThread = new Thread(() -> {
+            ObservableList<Transaction> newTransactions = FXCollections.observableArrayList();
+
+            try (ResultSet rs = SqliteImplementation.getUserTransactions(null)) {
+                if (rs != null) {
+                    while (rs.next()) {
+                        String bookTitle = rs.getString("book_title");
+                        String buyerEmail = rs.getString("buyer_email");
+                        String sellerEmail = rs.getString("seller_email");
+                        Double price = rs.getDouble("price");
+                        String transactionDate = rs.getString("transaction_date");
+
+                        if (transactionDate == null || transactionDate.trim().isEmpty()) {
+                            transactionDate = "Not specified";
+                        }
+
+                        Transaction transaction = new Transaction(
+                                bookTitle, buyerEmail, sellerEmail, price, transactionDate
+                        );
+                        newTransactions.add(transaction);
+                    }
+                }
+
+                javafx.application.Platform.runLater(() -> {
+                    transactions = newTransactions;
+                    transactionTable.setItems(transactions);
+
+                    if (transactions.isEmpty()) {
+                        transactionTable.setPlaceholder(new Label("No transactions found"));
+                    }
+
+                    showNotification("Refresh complete", "Transaction list has been updated");
+                });
+
+            } catch (SQLException e) {
+                javafx.application.Platform.runLater(() -> {
+                    showAlert("Error", "Failed to refresh transactions: " + e.getMessage());
+                    transactionTable.setPlaceholder(new Label("Error loading transactions"));
+                });
+            }
+        });
+
+        refreshThread.start();
+    }
+
+    private void showNotification(String title, String message) {
+        Label notification = new Label(message);
+        notification.setStyle("-fx-background-color: #90EE90; -fx-padding: 10; -fx-background-radius: 5;");
+
+        Popup popup = new Popup();
+        popup.getContent().add(notification);
+
+        Stage stage = (Stage) transactionTable.getScene().getWindow();
+        popup.show(stage);
+
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(2),
+                ae -> popup.hide()
+        ));
+        timeline.play();
+    }
+
 }
