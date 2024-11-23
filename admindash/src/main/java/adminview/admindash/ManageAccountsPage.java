@@ -1,5 +1,5 @@
 package adminview.admindash;
-import adminview.admindash.SqliteImplementation;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,8 +8,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -17,9 +19,11 @@ public class ManageAccountsPage extends Application {
     private TableView<User> tableView;
     private ObservableList<User> data;
     private ToggleGroup toggleGroup;
+
     public static void main(String[] args) {
         launch(args);
     }
+
     @Override
     public void start(Stage stage) {
         BorderPane root = new BorderPane();
@@ -50,21 +54,29 @@ public class ManageAccountsPage extends Application {
         stage.setScene(scene);
         stage.setTitle("Manage Accounts");
         stage.show();
+        SqliteImplementation.createTable();
         loadUsers("Buyer");
     }
+
     //Getting the users from the database and loading them into the table view.
     private void loadUsers(String userType) {
         data = FXCollections.observableArrayList();
+        ResultSet rs = null;
+        Connection conn = null;
+        PreparedStatement pst = null;
         try {
-            ResultSet rs = SqliteImplementation.getUsersByType(userType);
+            conn = SqliteImplementation.connect();
+            rs =  SqliteImplementation.getUsersByType(userType);
             while (rs != null && rs.next()) {
-                String name = rs.getString("firstName") + " " + rs.getString("lastName");
+                String name = rs.getString("name") + " " + rs.getString("last_name");
                 String email = rs.getString("email");
-                String joinDate = rs.getString("joinDate");
+                String joinDate = rs.getString("join_date");
                 data.add(new User(name, email, joinDate));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            SqliteImplementation.closeResultSetAndConnection(rs, conn, pst);
         }
         tableView.setItems(data);
     }
