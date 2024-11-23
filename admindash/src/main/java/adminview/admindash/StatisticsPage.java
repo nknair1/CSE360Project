@@ -20,6 +20,10 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import javafx.stage.Popup;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 
 public class StatisticsPage extends Application {
     private VBox chartsContainer;
@@ -65,7 +69,7 @@ public class StatisticsPage extends Application {
             try {
                 boolean wasFullScreen = stage.isFullScreen();
                 new AdminDash().start(stage);
-                stage.setFullScreen(wasFullScreen); 
+                stage.setFullScreen(wasFullScreen);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -80,6 +84,10 @@ public class StatisticsPage extends Application {
         Label titleLabel = new Label("Statistics Dashboard");
         titleLabel.setFont(Font.font("System", FontWeight.BOLD, 40));
 
+        Button refreshBtn = new Button("↻ Refresh");
+        refreshBtn.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
+        refreshBtn.setOnAction(e -> refreshData());
+
         Button logoutButton = new Button("Logout");
         logoutButton.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;");
 
@@ -88,7 +96,7 @@ public class StatisticsPage extends Application {
         HBox.setHgrow(spacer1, Priority.ALWAYS);
         HBox.setHgrow(spacer2, Priority.ALWAYS);
 
-        topBar.getChildren().addAll(adminLabel, spacer1, imageView, titleLabel, spacer2, logoutButton);
+        topBar.getChildren().addAll(adminLabel, spacer1, imageView, titleLabel, spacer2, refreshBtn, logoutButton);
         return topBar;
     }
 
@@ -328,6 +336,31 @@ public class StatisticsPage extends Application {
             e.printStackTrace();
         }
         return books;
+    }
+    private void showNotification(String title, String message) {
+        Label notification = new Label(message);
+        notification.setStyle("-fx-background-color: #90EE90; -fx-padding: 10; -fx-background-radius: 5;");
+
+        Popup popup = new Popup();
+        popup.getContent().add(notification);
+        
+        Stage stage = (Stage) chartsContainer.getScene().getWindow();
+        popup.show(stage);
+
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(2),
+                ae -> popup.hide()
+        ));
+        timeline.play();
+    }
+    private void refreshData() {
+        chartsContainer.getChildren().clear();
+        addStatisticsCards();
+        addRevenueChart();
+        addUserDistributionChart();
+        addTransactionHistoryChart();
+        addPopularBooksChart();
+        showNotification("Refresh", "Statistics updated successfully!");
     }
 
     public static void main(String[] args) {
