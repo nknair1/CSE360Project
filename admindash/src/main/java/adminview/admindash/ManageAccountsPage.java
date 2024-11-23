@@ -4,10 +4,16 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.sql.Connection;
@@ -26,39 +32,100 @@ public class ManageAccountsPage extends Application {
 
     @Override
     public void start(Stage stage) {
-        BorderPane root = new BorderPane();
-        //Creating the table view for the manage accounts page. Should have filters, and toggle for Buyer and Seller
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(15);
+        topBar.setStyle("-fx-background-color: #FFD700;"); // Gold color
+
+        Label adminLabel = new Label("Mr. Admin"); // Updated Label text
+        adminLabel.setFont(Font.font("System", 14));
+        adminLabel.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;"); // Yellow bg
+
+        // ASU Bookstore Image Logo
+        Image image = new Image("https://github.com/nknair1/CSE360Project/blob/main/ASU.png?raw=true");
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(150);
+        imageView.setFitHeight(55); // Adjusted height
+        imageView.setPreserveRatio(true);
+
+        Label titleLabel = new Label("Manage Accounts");
+        titleLabel.setFont(Font.font("System", FontWeight.BOLD, 40));
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.setStyle("-fx-background-color: #FFFF00; -fx-padding: 5 10; -fx-background-radius: 5;"); // Yellow bg
+
+        Region spacer1 = new Region();
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer1, Priority.ALWAYS);
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+
+        topBar.getChildren().addAll(adminLabel, spacer1, imageView, titleLabel, spacer2, logoutButton);
+
+        // Table and Toggle for buyer and seller Setup
         tableView = new TableView<>();
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.setStyle("-fx-background-color: #FFFFFF");
+
         TableColumn<User, String> nameColumn = new TableColumn<>("Name");
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name")); // Use PropertyValueFactory
         TableColumn<User, String> emailColumn = new TableColumn<>("Email");
-        emailColumn.setCellValueFactory(cellData -> cellData.getValue().emailProperty());
-        TableColumn<User, String> joinDateColumn = new TableColumn<>("Join Date");
-        joinDateColumn.setCellValueFactory(cellData -> cellData.getValue().joinDateProperty());
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        TableColumn<User, String> joinDateColumn = new TableColumn<>("Member Since"); // Updated column name
+        joinDateColumn.setCellValueFactory(new PropertyValueFactory<>("joinDate"));
+        nameColumn.setPrefWidth(200);
+        emailColumn.setPrefWidth(250);
+        joinDateColumn.setPrefWidth(150);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableView.getColumns().addAll(nameColumn, emailColumn, joinDateColumn);
-        //The toggles
+
         toggleGroup = new ToggleGroup();
         RadioButton buyersButton = new RadioButton("Buyers");
         buyersButton.setToggleGroup(toggleGroup);
         buyersButton.setSelected(true);
         buyersButton.setOnAction(e -> loadUsers("Buyer"));
+
         RadioButton sellersButton = new RadioButton("Sellers");
         sellersButton.setToggleGroup(toggleGroup);
         sellersButton.setOnAction(e -> loadUsers("Seller"));
+
         HBox toggleBox = new HBox(10, buyersButton, sellersButton);
         toggleBox.setPadding(new Insets(10));
-        root.setTop(toggleBox);
-        root.setCenter(new ScrollPane(tableView));
-        Scene scene = new Scene(root, 800, 600);
+
+        VBox rightSection = createRightSection();
+
+        BorderPane root = new BorderPane();
+        root.setTop(topBar);
+        root.setCenter(new ScrollPane(tableView)); // Wrap table in ScrollPane
+        root.setRight(rightSection);
+        root.setStyle("-fx-background-color: #FAEBD7; -fx-padding: 20px;");
+
+        Scene scene = new Scene(root, 1024, 768);
         stage.setScene(scene);
+
         stage.setTitle("Manage Accounts");
         stage.show();
         SqliteImplementation.createTable();
         loadUsers("Buyer");
     }
+    private VBox createRightSection() {
 
-    //Getting the users from the database and loading them into the table view.
+        VBox rightSection = new VBox(15);
+        rightSection.setPrefWidth(150);
+        rightSection.setStyle("-fx-background-color: #FAEBD7;");
+
+        Label selectedLabel = new Label("× 5 Selected:");
+        Button removeButton = new Button("Remove Accounts");
+        Button editButton = new Button("Edit Account Info");
+        Button accessButton = new Button("Access Finances");
+        Button historyButton = new Button("Transaction History");
+
+        // Add buttons and label to the right section
+        rightSection.getChildren().addAll(selectedLabel, removeButton, editButton, accessButton, historyButton);
+        rightSection.setAlignment(Pos.TOP_CENTER); // Align content to top-center
+
+        return rightSection;
+    }
+
+    //Getting the users from database and loading them into table view.
     private void loadUsers(String userType) {
         data = FXCollections.observableArrayList();
         ResultSet rs = null;

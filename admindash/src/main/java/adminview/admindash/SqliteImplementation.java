@@ -20,17 +20,14 @@ public class SqliteImplementation {
         return conn;
     }
     public static boolean insertUser(String name, String lastName, String email, String confirmEmail, String password, String confirmPassword, String userType) {
-        // Basic input validation
         if (name == null || name.isEmpty() || lastName == null || lastName.isEmpty() || email == null || email.isEmpty() || password == null || password.isEmpty() || userType == null || userType.isEmpty()) {
             System.out.println("All fields are required.");
             return false;
         }
-        // Validate email format (basic example)
         if (!email.matches("[^@]+@[^@]+\\.[^@]+")) {
             System.out.println("Invalid email format.");
             return false;
         }
-        // Additional validation rules as needed (password strength, confirm email/password match etc)
         if (!email.equals(confirmEmail))
         {
             System.out.println("Email and Confirm Email do not match");
@@ -123,6 +120,69 @@ public class SqliteImplementation {
             if (conn != null) conn.close();
         } catch (SQLException e) {
             System.out.println("Error closing resources: " + e.getMessage());
+        }
+    }
+    public static void createBookTransactionTable() {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS book_transactions (
+                transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                buyer_email TEXT NOT NULL,
+                seller_email TEXT NOT NULL,
+                book_title TEXT NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                transaction_date TEXT,
+                FOREIGN KEY (buyer_email) REFERENCES users(email),
+                FOREIGN KEY (seller_email) REFERENCES users(email)
+            );""";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Book transactions table created successfully.");
+        } catch (SQLException e) {
+            System.out.println("Book transactions table creation failed. " + e.getMessage());
+        }
+    }
+
+    public static boolean insertBookTransaction(String buyerEmail, String sellerEmail, String bookTitle, double price) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String transactionDate = now.format(formatter);
+
+        String sql = "INSERT INTO book_transactions (buyer_email, seller_email, book_title, price, transaction_date) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, buyerEmail);
+            pstmt.setString(2, sellerEmail);
+            pstmt.setString(3, bookTitle);
+            pstmt.setDouble(4, price);
+            pstmt.setString(5, transactionDate);
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Insert book transaction failed. " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static ResultSet getUserTransactions(String userEmail) {
+        String sql = """
+            SELECT * FROM book_transactions 
+            WHERE buyer_email = ? OR seller_email = ? 
+            ORDER BY transaction_date DESC""";
+
+        try {
+            Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, userEmail);
+            return pstmt.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error retrieving transactions: " + e.getMessage());
+            return null;
         }
     }
 }
