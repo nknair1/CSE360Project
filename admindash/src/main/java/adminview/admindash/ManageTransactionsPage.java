@@ -27,9 +27,6 @@ public class ManageTransactionsPage extends Application {
     private HBox selectionToolbar;
     private ObservableList<Transaction> transactions;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) {

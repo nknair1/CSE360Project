@@ -12,4 +12,5 @@ module adminview.admindash {
 
     opens adminview.admindash to javafx.fxml;
     exports adminview.admindash;
+    exports Account.DataBase;
 }

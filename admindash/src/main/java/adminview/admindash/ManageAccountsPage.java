@@ -41,9 +41,6 @@ public class ManageAccountsPage extends Application {
     private Label selectedLabel;
     private RadioButton currentSelectedButton;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage stage) {

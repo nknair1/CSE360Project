@@ -1,8 +1,11 @@
 package adminview.admindash;
 
+import Account.DataBase.Book;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class SqliteImplementation {
 
@@ -244,5 +247,142 @@ public class SqliteImplementation {
                 throw new SQLException("Updating user failed, no rows affected.");
             }
         }
+    }
+    public static void createBookTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS books (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "title TEXT NOT NULL," +
+                "author TEXT NOT NULL," +
+                "price REAL NOT NULL," +
+                "photo TEXT," +
+                "listing_date DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Method to get all currently listed books
+    public static List<String> getCurrentlyListedBooks() {
+        List<String> books = new ArrayList<>();
+        String sql = "SELECT title, author, price FROM books ORDER BY listing_date DESC";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String bookInfo = String.format("%s by %s - $%.2f",
+                        rs.getString("title"),
+                        rs.getString("author"),
+                        rs.getDouble("price"));
+                books.add(bookInfo);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return books;
+    }
+
+    // Method to get today's statistics
+    public static Map<String, Object> getTodayStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+
+        String sqlBooksSold = "SELECT COUNT(*) as count, SUM(price) as revenue " +
+                "FROM book_transactions " +
+                "WHERE date(transaction_date) = date('now')";
+
+        String sqlBooksListed = "SELECT COUNT(*) as count " +
+                "FROM books " +
+                "WHERE date(listing_date) = date('now')";
+
+        String sqlUserCount = "SELECT COUNT(DISTINCT user_id) as count " +
+                "FROM user_sessions " +
+                "WHERE last_activity > datetime('now', '-15 minutes')";
+
+        try (Connection conn = connect()) {
+            // Get books sold and revenue
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sqlBooksSold)) {
+                if (rs.next()) {
+                    stats.put("booksSold", rs.getInt("count"));
+                    stats.put("revenue", rs.getDouble("revenue"));
+                }
+            }
+
+            // Get books listed today
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sqlBooksListed)) {
+                if (rs.next()) {
+                    stats.put("booksListed", rs.getInt("count"));
+                }
+            }
+
+            // Get active users
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sqlUserCount)) {
+                if (rs.next()) {
+                    stats.put("activeUsers", rs.getInt("count"));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return stats;
+    }
+
+    // Method to get best selling book of the month
+    public static Map<String, Object> getBestSellingBook() {
+        Map<String, Object> bestSeller = new HashMap<>();
+
+        String sql = "SELECT bt.book_title, b.author, b.photo_url, " +
+                "COUNT(*) as copies_sold " +
+                "FROM book_transactions bt " +
+                "JOIN books b ON bt.book_title = b.title " +
+                "WHERE strftime('%Y-%m', transaction_date) = strftime('%Y-%m', 'now') " +
+                "GROUP BY bt.book_title " +
+                "ORDER BY copies_sold DESC " +
+                "LIMIT 1";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                bestSeller.put("title", rs.getString("book_title"));
+                bestSeller.put("author", rs.getString("author"));
+                bestSeller.put("photoUrl", rs.getString("photo_url"));
+                bestSeller.put("copiesSold", rs.getInt("copies_sold"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return bestSeller;
+    }
+    public static List<Book> getBooks() {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT title, author, price, photo FROM books";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                double price = rs.getDouble("price");
+                String photoUrl = rs.getString("photo");
+
+                Book book = new Book(title, author, price, photoUrl);
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving books: " + e.getMessage());
+        }
+        return books;
     }
 }

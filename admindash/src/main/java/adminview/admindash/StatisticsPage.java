@@ -343,7 +343,7 @@ public class StatisticsPage extends Application {
 
         Popup popup = new Popup();
         popup.getContent().add(notification);
-        
+
         Stage stage = (Stage) chartsContainer.getScene().getWindow();
         popup.show(stage);
 
@@ -363,7 +363,5 @@ public class StatisticsPage extends Application {
         showNotification("Refresh", "Statistics updated successfully!");
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+
 }
